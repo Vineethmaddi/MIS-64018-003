@@ -1,0 +1,82 @@
+---
+title: "assignment module 9"
+author: "vineeth goud maddi"
+date: "11/6/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*The Research and Development Division of the Emax Corporation has developed three new products. A decision now needs to be made on which mix of these products should be produced. Management wants primary consideration given to three factors*
+
+***1. Total Profit,*** 
+
+***2. Stability in the workforce and*** 
+
+***3. Achieving an increase in the company’s earnings next year from the $75 million achieved this year.***
+
+***Objective Function***
+
+*Maximize Z = P - 6C - 3D, where*
+
+*P = Total discounted profit over the life of the new products,*
+
+*C = Change in either direction towards the current level of employment,*
+
+*D = decrease if any in next year’s earnings from the current year’s level.*
+
+
+*Setting default values to get a clean output*
+```{r}
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+*Loading the required packages*
+```{r}
+library(lpSolve)
+library(lpSolveAPI)
+```
+
+*Loading the LP file from the current directory and printing the model.*
+
+*Defining y1p and y1m as the amount over (if any) and the amount under (if any) the employment level goal.Defining y2p and y2m in the same way for the goal regarding earnings next year.Define x1, x2 and x3 as the production rates of Products 1, 2, and 3, respectively.Also expressing P in terms of x1, x2 and x3 and the objective function in terms of x1, x2, x3, y1p, y1m , y2p and y2m.*
+
+```{r}
+ema_rd <- read.lp("./ema.lp")
+print(ema_rd)
+```
+*The impact (per unit of production) of each new product on each of these factors is shown in the table below:*
+```{r}
+ema_table <- matrix(c("Total Profit", "Employment Level", "Earnings Next Year",
+                       20,6,8,
+                       15,4,7,
+                       25,5,5,
+                       "Maximize","=50",">=75",
+                       "Millions of Dollars", "Hundreds of Employees", "Millions of Dollars"), ncol=6,
+                    byrow = F)
+
+colnames(ema_table) <- c("Factor","Product 1", "Product 2", "Product 3", "Goal", "Units")
+
+as.table(ema_table)
+```
+
+*Solve the goal programming model to get the values of the goals and variables.*
+```{r}
+solve(ema_rd)
+get.objective(ema_rd)
+get.variables(ema_rd)
+```
+***Interpretation:***
+
+*1.X1, X2, X3 are the combination units that companies must implement to maximize their objective function. X1 - Product 1, X2 - Product 2, and X3 for Product 3 indicate that Product 1 and Product 2 cannot be manufactured as intended. H. 20 units of product 1 and 15 units of product 2 cannot be created because the resulting solution was '0'. However, the X3 has changes. H. Product 3 is the only product the company can produce. H. 15 units of product 3, thereby maximizing profit.*
+
+*2. The aim was to stabilize the employment level by limiting the maximum number of employees to 5000, but in this case the company exceeded the employment level by 2500 employees (y1p) and was penalized for overage/person had to pay an increase in employee's.*
+
+*3. The goal of y2p and y2m was to understand the increase or decrease in revenue over the next few years from current levels. In this case, it is indicated by '0', indicating no increase or decrease in revenue compared to this next level. Year income is returned in the current year. Therefore, the next year's income is constant.*
+
+*4. The profit that the firm maximizes is given by the value of the objective function. In this case, this value is $225 million.*
